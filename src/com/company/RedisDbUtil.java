@@ -18,8 +18,8 @@ public class RedisDbUtil {
     public void execute() {
         int ch = 0;
         kb = new Scanner(System.in);
-        while (ch < 5) {
-            System.out.println("1. Enter word\n2. Search meaning\n3. Get description\n4. Get words\n5+. Quit");
+        while (ch < 6) {
+            System.out.println("1. Enter word\n2. Search meaning\n3. Get description\n4. Get words\n5. Delete Word\nQuit");
             switch (ch = kb.nextInt()) {
                 case 1:
                     kb.nextLine();
@@ -47,6 +47,11 @@ public class RedisDbUtil {
                     System.out.println("Enter meaning to search with");
                     System.out.println(getWords(readInput()));
                     break;
+                case 5:
+                    kb.nextLine();
+                    System.out.println("Enter word to delete");
+                    System.out.println(deleteWord(readInput()));
+                    break;
                 default:
                     jedis.save();
                     jedis.close();
@@ -56,14 +61,24 @@ public class RedisDbUtil {
         kb.close();
     }
 
+    private String deleteWord(String word) {
+        if (jedis.exists(word)) {
+            jedis.del(word);
+            jedis.decr("wordCount");
+            return "Word deleted";
+        }
+        else {
+            return "Word doesn't exist";
+        }
+    }
+
     private String readInput() {
         return kb.nextLine().toLowerCase();
     }
 
     private List<String> getWords(String meaning) {
         if (jedis.exists(meaning)) {
-            List<String> words = jedis.lrange(meaning, 0, 50);
-            return words;
+            return jedis.lrange(meaning, 0, 50);
         }
         return new LinkedList<>();
     }
