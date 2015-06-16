@@ -92,7 +92,15 @@ public class RedisDbUtil {
 
     private String searchWord(String word) {
         if (jedis.exists(word)) {
-            return jedis.get(word);
+            if (jedis.type(word).equals("string"))
+                return jedis.get(word);
+            else {
+                String meanings = "";
+                for (String words : getWords(word)) {
+                    meanings = meanings + " " + words;
+                }
+                return meanings;
+            }
         }
         else
             return "Word not found";
