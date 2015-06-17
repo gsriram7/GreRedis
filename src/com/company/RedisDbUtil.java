@@ -111,6 +111,7 @@ public class RedisDbUtil {
             jedis.set(word, meaning);
             jedis.set(word+"_desc", description);
             jedis.lpush(meaning, word);
+            jedis.lpush("allWords", word);
             jedis.incr("wordCount");
             return "Word added";
         }
